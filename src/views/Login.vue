@@ -1,25 +1,11 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-lg-12 pt-4">
-        <div class="col-lg-12 pt-4">
-          <h3 class="text-center pt-4 p-name">
-            <span class="emoji-s">&#9996;</span>Hola, {{ name }}
-          </h3>
-        </div>
+      <NavL />
+      <div class="col-lg-12 pt-5">
         <div class="col-lg-4 mx-auto my-auto ba-white">
           <img src="../assets/trivapp.png" class="mx-auto d-block pt-3" />
           <form class="pt-3">
-            <div class="mb-3">
-              <label for="name" class="visually-hidden">Nombre</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Nombre"
-                v-model="name"
-                @input="$emit('update:name', $event.target.value)"
-              />
-            </div>
             <div class="mb-3">
               <label for="email" class="visually-hidden">Email</label>
               <input
@@ -28,7 +14,6 @@
                 class="form-control"
                 placeholder="Email"
                 v-model="email"
-                @input="$emit('update:email', $event.target.value)"
               />
             </div>
             <div class="mb-3">
@@ -39,14 +24,13 @@
                 class="form-control"
                 placeholder="Contraseña"
                 v-model="password"
-                @input="$emit('update:password', $event.target.value)"
-                @keyup.enter="addUser"
+                @keyup.enter="getUser"
               />
             </div>
             <button
               class="w-100 btn btn-lg btn-trivapp"
               type="button"
-              @click.prevent="addUser"
+              @click.prevent="getUser"
             >
               Confirmar
             </button>
@@ -59,46 +43,70 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { inject, reactive, toRefs } from "vue";
+import { useRoute } from "vue-router";
 import router from "@/router";
 import { endpoint } from "../../backend/api";
+import NavL from "../components/Layout/NavL";
 export default {
+  components: {
+    NavL,
+  },
   setup() {
-    const name = ref("");
-    const email = ref("");
-    const password = ref("");
+    const state = reactive({
+      email: "",
+      password: "",
+    });
+    const $swal = inject("$swal");
+    const route = useRoute();
+    const token = localStorage.getItem("token");
+    if (token) {
+      router.push("/dashboard");
+    }
 
-    const addUser = async () => {
+    const getUser = async () => {
       const sendUserData = {
-        name: name.value,
-        email: email.value,
-        password: password.value,
+        email: state.email,
+        password: state.password,
       };
-      const sendUser = await fetch(endpoint + "register", {
+      const sendUser = await fetch(endpoint + "sign-in", {
         method: "post",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(sendUserData),
       });
-
       if (sendUser.status == 200) {
         const data = await sendUser.json();
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          router.push("/dashboard");
-        } else {
-          alert("Mala respuesta 2");
-        }
+        localStorage.setItem("token", data.token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            name: data.user.name,
+            email: data.user.email,
+            _id: data.user._id,
+            rol: data.user.rol,
+          })
+        );
+        router.push("/dashboard");
+      } else if (sendUser.status == 404) {
+        $swal({
+          icon: "error",
+          title: "Parece que algo ha ido mal.",
+          text: "Tu usuario o contraseña no es válida.",
+        });
       } else {
-        alert("Mala respuesta");
+        $swal({
+          icon: "error",
+          title: "Parece que algo ha ido mal.",
+          text: "Por favor notifica del error.",
+        });
       }
     };
     return {
-      name,
-      email,
-      password,
-      addUser,
+      ...toRefs(state),
+      getUser,
+      route,
     };
   },
 };

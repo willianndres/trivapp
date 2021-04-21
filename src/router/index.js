@@ -1,30 +1,65 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/HomeView';
-import Dashboard from '../views/DashboardView';
-import Welcome from '../views/Welcome';
 
+const validateToken = (to, from, next) => {
+  const token = localStorage.getItem("token");
+  if (!token && to.name !== "Login") {
+    return next("/403");
+  }
+  return next();
+};
 
 const routes = [
-   {
+  {
     path: '/',
-    component: Welcome
+    name: 'Register',
+    component: () => import("@/views/Register")
   },
   {
-    path: '/home',
-    component: Home
+    path: '/login',
+    name: 'Login',
+    component: () => import("@/views/Login")
   },
   {
     path: '/dashboard',
-    component: Dashboard
+    name: 'Dashboard',
+    redirect: '',
+    component: () => import('@/views/Dashboard'),
+    beforeEnter: [validateToken],
+    children: [
+      {
+        path: "",
+        component: () => import("@/components/Dashboard/Index")
+      }
+    ]
+  },
+  {
+    path: '/categories',
+    name: 'Categories',
+    redirect: '',
+    component: () => import('@/views/Categories'),
+    beforeEnter: [validateToken],
+    children: [
+      {
+        path: "",
+        component: () => import("@/components/Categories/Index")
+      },
+      {
+        path: "add",
+        name: "AddCategory",
+        component: () => import("@/components/Categories/Add")
+      },
+      {
+        path: "edit/:id",
+        name: "EditCategory",
+        component: () => import("@/components/Categories/Edit")
+      },
+      {
+        path: "add-questions/:id",
+        name: "AddQuestions",
+        component: () => import("@/components/Categories/AddQuestions")
+      }
+    ]
   }
- /* {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about"  '../views/About.vue')
-  } */
 ]
 
 const router = createRouter({
