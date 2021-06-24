@@ -8,6 +8,8 @@ const validateToken = (to, from, next) => {
   return next();
 };
 
+
+
 const routes = [
   {
     path: '/',
