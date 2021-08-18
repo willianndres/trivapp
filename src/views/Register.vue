@@ -1,7 +1,6 @@
 <template>
   <div class="container">
     <div class="row">
-      <NavL />
       <div class="col-lg-12 pt-4">
         <div class="col-lg-12 pt-4">
           <h3 class="text-center pt-4 p-name">
@@ -59,9 +58,9 @@
 <script>
 import { inject, reactive, toRefs } from "vue";
 import { useRoute } from "vue-router";
-import router from "@/router";
+import router from "../router/index";
 import { endpoint } from "../../backend/api";
-import NavL from "../components/Layout/NavL";
+import NavL from "../components/Layout/NavL.vue";
 export default {
   components: {
     NavL,
@@ -74,7 +73,6 @@ export default {
     });
     const route = useRoute();
     const $swal = inject("$swal");
-
     const addUser = async () => {
       const sendUserData = {
         name: state.name,
@@ -92,15 +90,6 @@ export default {
       if (sendUser.status == 200) {
         if (data.token) {
           localStorage.setItem("token", data.token);
-          localStorage.setItem(
-            "user",
-            JSON.stringify({
-              name: data.user.name,
-              email: data.user.email,
-              _id: data.user._id,
-              rol: data.user.rol,
-            })
-          );
           $swal({
             icon: "success",
             title: "Buen trabajo.",

@@ -33,7 +33,7 @@
 <script>
 import { reactive, toRefs, computed } from "vue";
 import { endpoint, bearerHeader } from "../../../backend/api";
-import DropdownCategories from "../UIComponents/DropdownCategories";
+import DropdownCategories from "../UIComponents/DropdownCategories.vue";
 import { useStore } from "vuex";
 export default {
   components: {

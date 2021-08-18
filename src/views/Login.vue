@@ -45,9 +45,9 @@
 <script>
 import { inject, reactive, toRefs } from "vue";
 import { useRoute } from "vue-router";
-import router from "@/router";
+import router from "../router";
 import { endpoint } from "../../backend/api";
-import NavL from "../components/Layout/NavL";
+import NavL from "../components/Layout/NavL.vue";
 export default {
   components: {
     NavL,

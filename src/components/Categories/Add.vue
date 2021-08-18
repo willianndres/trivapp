@@ -38,7 +38,7 @@
 <script>
 import { inject, reactive, toRefs } from "vue";
 import { endpoint, bearerHeader } from "../../../backend/api";
-import router from "@/router";
+import router from "../../router/index";
 export default {
   setup() {
     const $swal = inject("$swal");

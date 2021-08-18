@@ -44,17 +44,21 @@
 <script>
 import { reactive, toRefs } from "vue";
 import { useRoute } from "vue-router";
-import router from "@/router";
+import router from "../../router/index";
 export default {
   setup() {
-    const user = JSON.parse(localStorage.getItem("user")) ?? null;
+    const parseJwt = () => {
+      let token = localStorage.getItem("token");
+      let base64Url = token.split(".")[1];
+      let base64 = base64Url.replace("-", "+").replace("_", "/");
+      return JSON.parse(atob(base64));
+    };
     const state = reactive({
-      user,
+      user: parseJwt().user,
       isActive: false,
     });
     const route = useRoute();
     const closeSesion = () => {
-      localStorage.removeItem("user");
       localStorage.removeItem("token");
       router.push("/login");
     };
